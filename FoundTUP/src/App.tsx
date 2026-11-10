@@ -2,6 +2,10 @@ import InputField from './components/inputfield';
 import { useState } from 'react';
 import { motion } from 'motion/react';
 
+  const response = await fetch("http://localhost:3000/api/items");
+  const items = await response.json();
+  console.log(items);
+
 function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
