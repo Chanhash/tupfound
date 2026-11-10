@@ -23,6 +23,7 @@ export default function Login() {
         "http://localhost:3000/api/auth/login",
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json"
           },
@@ -45,7 +46,7 @@ export default function Login() {
         return;
       }
 
-      console.log("Login successful!", result.user);
+      console.log("Login successful!", result);
       setErrorMessage('');
     } catch (error) {
       console.error("Unable to connect to the server.", error);
