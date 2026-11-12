@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-type User = { id: string, email: string, role: "user" | "admin" };
+export type User = { id: string, email: string, role: "user" | "admin" };
 
 type Context = {
     user: User | null;
