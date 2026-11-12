@@ -1,4 +1,4 @@
-import InputField from '../components/inputfield';
+import InputField from '../components/InputField';
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router/internal/react-server-client';
@@ -63,21 +63,21 @@ export default function Register() {
       <form onSubmit={handleRegister} className="flex flex-col gap-4 p-5 rounded-xl border-1 w-80 mx-auto shadow-lg">
         <p className="text-xl self-center font-bold">Sign In</p>
         <div className="flex flex-col gap-1">
-          <InputField label="Email" type="email" placeholder="example@gmail.com" onChange={(e) => setEmail(e.target.value)} />
+          <InputField value={email} label="Email" type="email" placeholder="example@gmail.com" onChange={(e) => setEmail(e.target.value)} />
           {!isValidEmail(email) && email.length > 0 && (
             <p className="text-red-500 text-xs">Please enter a valid email address.</p>
           )}
         </div>
 
         <div className="flex flex-col gap-1">
-          <InputField label="Password" type="password" placeholder="********" onChange={(e) => setPassword(e.target.value)} />
+          <InputField value={password} label="Password" type="password" placeholder="********" onChange={(e) => setPassword(e.target.value)} />
           {!isValidPassword(password) && password.length > 0 && (
             <p className="text-red-500 text-xs">Password must be at least 8 characters long.</p>
           )}
         </div>
 
         <div className="flex flex-col gap-1">
-          <InputField label="Confirm Password" type="password" placeholder="********" onChange={(e) => setConfirmPassword(e.target.value)} />
+          <InputField value={confirmPassword} label="Confirm Password" type="password" placeholder="********" onChange={(e) => setConfirmPassword(e.target.value)} />
           {password !== confirmPassword && confirmPassword.length > 0 && (
             <p className="text-red-500 text-xs">Passwords do not match.</p>
           )}

@@ -1,15 +1,19 @@
-import InputField from '../components/inputfield';
-import Spinner from '../components/spinner';
+import InputField from '../components/InputField';
+import Spinner from '../components/Spinner';
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router/internal/react-server-client';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState<Boolean>(false);
+  const  navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState('');
+  const { login } = useAuth();
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,37 +23,16 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/auth/login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email,
-            password
-          })
-        }
-      );
-
-      const result = await response.json();
-
-      setLoading(false);
-      setEmail('');
-      setPassword('');
-
-      if (!response.ok) {
-        console.error(result.error);
-        setErrorMessage(result.error);
-        return;
-      }
-
-      console.log("Login successful!", result);
+      const response = await login(email, password);
+      console.log("Login successful!", response);
       setErrorMessage('');
-    } catch (error) {
-      console.error("Unable to connect to the server.", error);
+
+      if (response.role === "admin") {
+        navigate("/admin");
+      }
+    } catch (error: any) {
+      console.error("Login failed!", error);
+      setErrorMessage(error.message || "Unable to log in!");
     }
   }
 
@@ -71,7 +54,6 @@ export default function Login() {
           ease: 'easeOut'
       }}
     >
-
       <h1 className="text-3xl font-bold mb-5">FoundTUP.</h1>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4 p-5 rounded-xl border-1 w-80 mx-auto shadow-lg">

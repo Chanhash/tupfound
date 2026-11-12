@@ -61,9 +61,32 @@ router.post("/login", async (req, res) => {
       return;
     }
 
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      res.status(500).json({ error: "Could not load user profile." });
+      return;
+    }
+
+    res.cookie("sb-access", data.session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 1000,
+    });
+
     res.status(200).json({
       message: "Login successful.",
-      user: data.user
+      user: {
+        id: data.user?.id,
+        email: data.user?.email ?? "",
+        role: profile.role
+      }
     });
   } catch (error) {
     res.status(500).json({
