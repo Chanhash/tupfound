@@ -1,121 +1,113 @@
-import InputField from '../components/InputField';
 import Spinner from '../components/Spinner';
-import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router/internal/react-server-client';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from "react-router";
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState<Boolean>(false);
-  const  navigate = useNavigate();
+type LoginPageProps = {
+    setEmail: React.Dispatch<React.SetStateAction<string>>,
+    setPassword: React.Dispatch<React.SetStateAction<string>>,
+    isValidEmail: (email: string) => boolean,
+    isFormValid: () => boolean,
+    errorMessage?: string,
+    email: string,
+    password: string,
+    loading: boolean
+};
 
-  const [errorMessage, setErrorMessage] = useState('');
-  const { login } = useAuth();
+export default function LoginPage({
+    setEmail,
+    setPassword,
+    isValidEmail,
+    isFormValid,
+    errorMessage,
+    email,
+    password,
+    loading
+}: LoginPageProps) {
+    return (
+        <div className="flex flex-col gap-2 p-1">
+            <p className="text-4xl font-bricolage font-extrabold">Welcome back!</p>
+            <p className="font-extralight font-nunito mb-4">Log in to check on your lost and found items.</p>
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                    <p className="font-bold text-sm">Email</p>
 
-    if (!isFormValid()) return;
+                    {!isValidEmail(email) && email.length > 0 && (
+                        <p className="text-red-500 text-xs">
+                            Please enter a valid email address.
+                        </p>
+                    )}
+                </div>
 
-    setLoading(true);
+                <input
+                    type="email"
+                    placeholder="example@gmail.com"
+                    className="p-2 px-4 rounded-xl border-2"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                />
+            </div>
 
-    try {
-      const response = await login(email, password);
-      console.log("Login successful!", response);
-      setErrorMessage('');
+            <div className="flex flex-col gap-1">
+                <p className="font-bold text-sm">Password</p>
 
-      if (response.role === "admin") {
-        navigate("/admin");
-      }
-    } catch (error: any) {
-      console.error("Login failed!", error);
-      setErrorMessage(error.message || "Unable to log in!");
-    }
-  }
+                <input
+                    type="password"
+                    placeholder='••••••••'
+                    className="p-2 px-4 rounded-xl border-2"
+                    onChange={(e) => setPassword(e.target.value)}
+                    value={password}
+                />
+            </div>
 
-  function isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+            <div className="flex flex-row justify-between mt-2">
+                <label className="flex items-center gap-2 cursor-pointer group text-sm font-bold font-nunito">
+                    <input type="checkbox" className="sr-only peer" />
+                    <span className="w-5 h-5 border rounded-sm flex items-center justify-center
+                                    group-has-[:checked]:bg-green-500
+                                    group-has-[:checked]:border-green-500">
+                        <svg
+                            className="w-4 h-4 text-white opacity-0 group-has-[:checked]:opacity-100"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            viewBox="0 0 24 24"
+                        >
+                            <path d="M5 12l4 4L19 6" />
+                        </svg>
+                    </span>
+                    Remember me?
+                </label>
 
-  function isFormValid(): boolean {
-    return password.length > 0 && email.length > 0;
-  }
+                <button className="text-sm font-bold font-nunito text-[#5E9440] hover:underline">
+                    Forgot password?
+                </button>
+            </div>
 
-  return (
-    <motion.div 
-      className="h-screen flex flex-col justify-center items-center"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-          duration: 0.6,
-          ease: 'easeOut'
-      }}
-    >
-      <h1 className="text-3xl font-bold mb-5">FoundTUP.</h1>
-
-      <form onSubmit={handleLogin} className="flex flex-col gap-4 p-5 rounded-xl border-1 w-80 mx-auto shadow-lg">
-        <p className="text-xl self-center font-bold">Log In</p>
-        <div className="flex flex-col gap-1">
-          <InputField 
-            label="Email" 
-            type="email" 
-            placeholder="example@gmail.com" 
-            onChange={(e) => setEmail(e.target.value)} 
-            value={email}
-          />
-          {!isValidEmail(email) && email.length > 0 && (
-            <p className="text-red-500 text-xs">Please enter a valid email address.</p>
-          )}
+            <motion.button
+                whileHover={{
+                    scale: isFormValid() && !loading ? 1.05 : 1,
+                }}
+                whileTap={{
+                    scale: 0.99
+                }}
+                animate={{
+                    backgroundPosition: isFormValid() && !loading ? "0% 0%" : "100% 0%",
+                }}
+                transition={{ duration: 0.2 }}
+                style={{
+                    backgroundSize: "200% 100%",
+                    backgroundPosition: "100% 0%",
+                    backgroundImage: "linear-gradient(to right, #a1ffb1 50%, #afafaf 50%)"
+                }}
+                className="px-6 py-4 rounded-lg border mt-2 flex items-center justify-center gap-2"
+                type="submit"
+            >
+                {loading ? "Logging in..." : "Log In"}
+                {loading && <Spinner />}
+            </motion.button>
+            {errorMessage && (
+                <p className="self-center text-sm text-red-800  ">Unable to log in! {errorMessage}</p>
+            )}
         </div>
-
-        <div className="flex flex-col gap-1">
-          <InputField 
-            label="Password" 
-            type="password" 
-            placeholder="********" 
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-          />
-        </div>
-        
-        <hr 
-          className="mt-1 mx-10"
-        />
-
-        <motion.button
-          whileHover={{
-            scale: isFormValid() && !loading ? 1.05 : 1,
-          }}
-          whileTap={{
-            scale: 0.99
-          }}
-          animate={{
-            backgroundPosition: isFormValid() && !loading ? "0% 0%" : "100% 0%",
-          }}
-          transition={{ duration: 0.2 }}
-          style={{
-            backgroundSize: "200% 100%",
-            backgroundPosition: "100% 0%",
-            backgroundImage: "linear-gradient(to right, #a1ffb1 50%, #afafaf 50%)"
-          }}
-          className="px-6 py-2 rounded-lg border mt-2 flex items-center justify-center gap-2"
-          type="submit"
-        >
-          {loading ? "Logging in..." : "Log In"}
-          {loading && <Spinner />}
-        </motion.button>
-        {errorMessage && (
-          <p className="self-center text-sm text-red-800  ">Unable to log in! {errorMessage}</p>
-        )}
-      </form>
-
-      <div className="font-light text-md mt-5">
-        <p>Don't have an account? <Link to="/register" className="text-blue-800 hover:underline">Register</Link></p>
-      </div>
-
-    </motion.div>
-  )
+    )
 }
