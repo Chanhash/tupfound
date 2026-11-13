@@ -119,7 +119,7 @@ export default function Auth() {
                       x: selectedAuth === 'login' ? '0%' : '-50%'
                   }}
                   transition={{
-                      type: 'linear',
+                      type: 'tween',
                       stiffness: 300,
                       damping: 30
                   }}
