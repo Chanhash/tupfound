@@ -1,53 +1,57 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { api } from "../lib/api";
+import type { User } from "../types";
 
-export type User = { id: string, email: string, role: "user" | "admin" };
+type RegisterResult = { user: User | null; confirmEmail: boolean };
 
-type Context = {
+type AuthContextValue = {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<User>;
-    logout: () => void;
-}
+    register: (email: string, password: string) => Promise<RegisterResult>;
+    logout: () => Promise<void>;
+};
 
-const API = "http://localhost:3000/api";
-const AuthContext = createContext<Context>(null!)
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${API}/auth/me`, { credentials: "include" })
-            .then((res) => res.ok ? res.json() : null)
-            .then((data) => setUser(data?.user ?? null))
+        api<{ user: User }>("/auth/me")
+            .then((data) => setUser(data.user))
+            .catch(() => setUser(null))
             .finally(() => setLoading(false));
     }, []);
 
-    console.log(user);
-
-    async function login(email: string, password: string) {
-        const res = await fetch(`${API}/auth/login`, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        })
-        const data = await res.json();
-        if (!res.ok) throw new Error(`Login failed: ${res.status}`);
+    const login = useCallback(async (email: string, password: string) => {
+        const data = await api<{ user: User }>("/auth/login", { method: "POST", body: { email, password } });
         setUser(data.user);
-        return data.user as User
-    }
+        return data.user;
+    }, []);
 
-    async function logout() {
-        //await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
-        setUser(null);
-    }
-    
-    return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
-            { children }
-        </AuthContext.Provider>
-    )
+    const register = useCallback(async (email: string, password: string) => {
+        const data = await api<RegisterResult>("/auth/register", { method: "POST", body: { email, password } });
+        if (data.user) setUser(data.user);
+        return data;
+    }, []);
+
+    const logout = useCallback(async () => {
+        try {
+            await api("/auth/logout", { method: "POST" });
+        } finally {
+            setUser(null);
+        }
+    }, []);
+
+    const value = useMemo(() => ({ user, loading, login, register, logout }), [user, loading, login, register, logout]);
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+    return ctx;
+}

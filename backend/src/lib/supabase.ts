@@ -1,23 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
+import { config } from "../config.js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const options = { auth: { autoRefreshToken: false, persistSession: false } };
 
-if (!supabaseUrl) {
-  throw new Error("Missing PUBLIC_SUPABASE_URL in backend/.env");
+export const supabaseAdmin = createClient(config.supabaseUrl, config.supabaseSecretKey, options);
+
+export function createAuthClient() {
+  return createClient(config.supabaseUrl, config.supabaseSecretKey, options);
 }
-
-if (!supabaseKey) {
-  throw new Error("Missing PUBLIC_SUPABASE_PUBLISHABLE_KEY in backend/.env");
-}
-
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);

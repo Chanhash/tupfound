@@ -1,26 +1,26 @@
-import "dotenv/config";
+import { config } from "./config.js";
 import express from "express";
 import cors from "cors";
-import authRouter from "./routes/auth.js";
-import { requireAuth, requireRole } from "./lib/middleware.js";
 import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth.js";
+import adminRouter from "./routes/admin.js";
+import { requireAuth, requireRole } from "./lib/middleware.js";
+import { errorHandler, notFound } from "./lib/http.js";
 
 const app = express();
-const PORT = 3000;
 
-app.use(express.json());
-
+app.disable("x-powered-by");
+app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
+app.use(cors({ origin: config.clientOrigin, credentials: true }));
 
 app.use("/api/auth", authRouter);
+app.use("/api/admin", requireAuth, requireRole("admin"), adminRouter);
 
-app.get("/api/auth/me", requireAuth, (req, res) => {res.json({ user: req.user })});
+app.use(notFound);
+app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
 });
