@@ -1,9 +1,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { StatCardSkeleton } from "../components/Skeleton";
+import { StatCardSkeleton, JourneySkeleton } from "../components/Skeleton";
 import AdminSidebar from "../components/admin/AdminSidebar";
+import Odometer from "../components/Odometer";
 import { api } from "../lib/api";
 import type { AdminStats } from "../types";
+import { BackPlates, FootprintTrail, Egg, Hatchling } from "../components/FindlyArt";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<AdminStats | null>(null);
@@ -48,7 +50,10 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Lost Items */}
-                <div className="col-span-3 bg-[#F8D9C6] border-2 border-[#23261C] rounded-3xl m-4 shadow-[4px_4px_0px_#23261C]">
+                <div className="col-span-3 bg-[#F8D9C6] border-2 border-[#23261C] rounded-3xl m-4 shadow-[4px_4px_0px_#000000]">
+                    <div className="relative">
+                        <BackPlates className="absolute -top-8 left-6 h-8 w-auto" fill="#D9774A" />
+                    </div>
                     <AnimatePresence mode="wait">
                         {isLoading ? (
                             <motion.div key="skel" exit={{ opacity: 0 }} className="h-full">
@@ -57,7 +62,9 @@ export default function AdminDashboard() {
                         ) : (
                             <motion.div key="data" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5">
                                 <p className="font-nunito font-extrabold text-lg text-[#6E2E12]">Lost items</p>
-                                <p className="text-8xl font-bricolage font-extrabold">{stats?.lost ?? "–"}</p>
+                                <p className="text-8xl font-bricolage font-extrabold">
+                                    {stats ? <Odometer value={stats.lost} /> : "–"}
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -65,22 +72,112 @@ export default function AdminDashboard() {
 
                 {/* Found Items */}
                 <div className="col-span-3 bg-[#DCEFC6] border-3 border-xl rounded-3xl m-4 shadow-[4px_4px_0px_#000000]">
-
+                    <div className="relative">
+                        <BackPlates className="absolute -top-8 left-6 h-8 w-auto" fill="#5E9440" />
+                    </div>
+                    <AnimatePresence mode="wait">
+                        {isLoading ? (
+                            <motion.div key="skel" exit={{ opacity: 0 }} className="h-full">
+                                <StatCardSkeleton />
+                            </motion.div>
+                        ) : (
+                            <motion.div key="data" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5">
+                                <p className="font-nunito font-extrabold text-lg text-[#6E2E12]">Found items</p>
+                                <p className="text-8xl font-bricolage font-extrabold">
+                                    {stats ? <Odometer value={stats.found} /> : "–"}
+                                </p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Pending */}
                 <div className="col-span-3 bg-[#FBE7A6] border-3 border-xl rounded-3xl m-4 shadow-[4px_4px_0px_#000000]">
-
+                    <div className="relative">
+                        <BackPlates className="absolute -top-8 left-6 h-8 w-auto" fill="#F2B544" />
+                    </div>
+                    <AnimatePresence mode="wait">
+                        {isLoading ? (
+                            <motion.div key="skel" exit={{ opacity: 0 }} className="h-full">
+                                <StatCardSkeleton />
+                            </motion.div>
+                        ) : (
+                            <motion.div key="data" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5">
+                                <p className="font-nunito font-extrabold text-lg text-[#6E2E12]">Pending reports</p>
+                                <p className="text-8xl font-bricolage font-extrabold">
+                                    {stats ? <Odometer value={stats.reported} /> : "–"}
+                                </p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Retrieved */}
                 <div className="col-span-3 bg-[#CFE6F2] border-3 border-xl rounded-3xl m-4 shadow-[4px_4px_0px_#000000]">
-
+                    <div className="relative">
+                        <BackPlates className="absolute -top-8 left-6 h-8 w-auto" fill="#6AAED0" />
+                    </div>
+                    <AnimatePresence mode="wait">
+                        {isLoading ? (
+                            <motion.div key="skel" exit={{ opacity: 0 }} className="h-full">
+                                <StatCardSkeleton />
+                            </motion.div>
+                        ) : (
+                            <motion.div key="data" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5">
+                                <p className="font-nunito font-extrabold text-lg text-[#6E2E12]">Retrieved items</p>
+                                <p className="text-8xl font-bricolage font-extrabold">
+                                    {stats ? <Odometer value={stats.retrieved} /> : "–"}
+                                </p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Item journey */}
                 <div className="col-span-12 bg-[#FFFDF6] border-3 border-xl rounded-3xl mx-4 shadow-[4px_4px_0px_#000000]">
-
+                    {isLoading
+                        ? <JourneySkeleton />
+                        : <div className="p-4 mx-5 text-bricolage">
+                            <p className="font-bricolage text-3xl font-extrabold">
+                                Item journey
+                                <span className="font-gaegu ml-4 text-[#5B5A4A] text-2xl">every item spawns as an egg...</span>
+                            </p>
+                            <motion.div initial={{ opacity:0, y:5 }} animate={{ opacity: 1, y: 0 }} className="flex flex-row mt-4 justify-between">
+                                <div className="gap-2 flex flex-col items-center justify-center border-2 w-55 h-60 rounded-2xl border-[#E2DBC4] border-dashed">
+                                    <Egg className="w-20 h-20"/>
+                                    <p className="font-extrabold">1 · Reported</p>
+                                    {stats ? <Odometer className="font-extrabold text-5xl" value={stats.reported} /> : "–"}
+                                    <p className="text-sm text-[#5B5A4A]">Waiting for review</p>
+                                </div>
+                                <div className="flex flex-col items-center justify-center border-2 w-55 h-60 rounded-2xl border-[#E2DBC4] border-dashed">
+                                    <Egg className="w-20 h-20" stage="registered"/>
+                                    <p className="font-extrabold">2 · Registered</p>
+                                    {stats ? <Odometer className="font-extrabold text-5xl" value={stats.lost + stats.found} /> : "–"}
+                                    <p className="text-sm text-[#5B5A4A]">Logged as lost or found</p>
+                                </div>
+                                <div className="flex flex-col items-center justify-center border-2 w-55 h-60 rounded-2xl border-[#E2DBC4] border-dashed">
+                                    <Egg className="w-20 h-20" stage="matched" />
+                                    <p className="font-extrabold">3 · Matched</p>
+                                    {stats ? <Odometer className="font-extrabold text-5xl" value={stats.matched} /> : "–"}
+                                    <p className="text-sm text-[#5B5A4A]">Owner asked for it</p>
+                                </div>
+                                <div className="flex flex-col items-center justify-center border-2 w-55 h-60 rounded-2xl border-[#E2DBC4] border-dashed">
+                                    <Egg className="w-20 h-20" stage="ready"/>
+                                    <p className="font-extrabold">4 · Ready</p>
+                                    {stats ? <Odometer className="font-extrabold text-5xl" value={stats.ready} /> : "–"}
+                                    <p className="text-sm text-[#5B5A4A]">Verified, set for pickup</p>
+                                </div>
+                                <div className="flex flex-col items-center justify-center border-2 w-55 h-60 rounded-2xl bg-[#DCEFC6]">
+                                    <Hatchling className="w-20 h-20"/>
+                                    <p className="font-extrabold">5 · Retrieved</p>
+                                    {stats ? <Odometer className="font-extrabold text-5xl" value={stats.retrieved} /> : "–"}
+                                    <p className="text-sm text-[#5B5A4A]">Hatched! Back home</p>
+                                </div>
+                            </motion.div>
+                            <div className="mt-5">
+                                <FootprintTrail />
+                            </div>
+                        </div>}
                 </div>
 
                 {/* This week chart */}

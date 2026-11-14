@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import Spinner from "../Spinner";
 
 type SubmitButtonProps = {
-    /** Fills the button green when the form is ready to submit. */
     ready: boolean;
     loading: boolean;
     label: string;

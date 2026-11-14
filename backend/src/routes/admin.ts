@@ -5,14 +5,26 @@ import { parse } from "../lib/http.js";
 
 const router = Router();
 
-router.get("/stats", async (_req, res) => {
-  const { count: lost, error } = await supabaseAdmin
+async function countItems(column: string, value: string): Promise<number> {
+  const { count, error } = await supabaseAdmin
     .from("items")
     .select("*", { count: "exact", head: true })
-    .eq("type", "lost");
+    .eq(column, value);
   if (error) throw error;
+  return count ?? 0;
+}
 
-  res.json({ lost: lost ?? 0 });
+router.get("/stats", async (_req, res) => {
+  const [reported, lost, found, matched, ready, retrieved] = await Promise.all([
+    countItems("stage", "reported"),
+    countItems("type", "lost"),
+    countItems("type", "found"),
+    countItems("stage", "matched"),
+    countItems("stage", "ready"),
+    countItems("stage", "retrieved")
+  ]);
+
+  res.json({ reported, lost, found, matched, ready, retrieved });
 });
 
 const itemsQuery = z.object({

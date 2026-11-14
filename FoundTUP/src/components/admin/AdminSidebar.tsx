@@ -1,4 +1,5 @@
 import { useAuth } from "../../contexts/AuthContext";
+import { DinoMascot } from "../FindlyArt";
 
 type NavItem = { label: string; iconPaths: string[] };
 
@@ -21,7 +22,10 @@ export default function AdminSidebar({ active }: { active: string }) {
 
     return (
         <nav className="min-h-screen bg-[#FFFDF6] border-r-2 border-[#23261C] flex flex-col p-5 gap-8">
-            <p className="self-center font-bricolage font-extrabold text-4xl mb-2">findly</p>
+            <div className="flex flex-row justiy-center items-center gap-3">
+                <DinoMascot className="h-15"></DinoMascot>
+                <p className="self-center font-bricolage font-extrabold text-4xl mb-2 mt-5">findly</p>
+            </div>
 
             {NAV_ITEMS.map(({ label, iconPaths }) => (
                 <button key={label} type="button" className={`${BASE} ${label === active ? ACTIVE : INACTIVE}`}>

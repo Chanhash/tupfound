@@ -2,7 +2,6 @@ import type { InputHTMLAttributes } from "react";
 
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
     label: string;
-    /** Shown to the right of the label when truthy. */
     error?: string | false;
 };
 

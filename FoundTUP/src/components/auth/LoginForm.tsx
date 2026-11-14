@@ -72,7 +72,6 @@ export default function LoginForm({ onSuccess }: { onSuccess: (user: User) => vo
                     Remember me?
                 </label>
 
-                {/* type="button" so it doesn't submit the form. Not wired up yet. */}
                 <button type="button" className="text-sm font-bold font-nunito text-[#5E9440] hover:underline">
                     Forgot password?
                 </button>
